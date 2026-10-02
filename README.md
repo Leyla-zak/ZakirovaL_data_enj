@@ -37,9 +37,8 @@ cd ZakirovaL_data_enj
 pip install -r requirements.txt
 ```
 ### 3. Скачивание датасета
-```bash
-python download_data.py
-```
+Скачайте CSV по ссылке из раздела „Ссылка на хранилище
+
 ### 4. Запуск скрипта
 ```bash
 python data_loader.py

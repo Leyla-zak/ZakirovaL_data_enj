@@ -1,5 +1,7 @@
 import pandas as pd
 import os
+import csv
+import warnings
 
 def load_dataset(file_path: str = 'au_supermarket_products.csv') -> pd.DataFrame:
     """
@@ -15,18 +17,20 @@ def load_dataset(file_path: str = 'au_supermarket_products.csv') -> pd.DataFrame
         raise FileNotFoundError(f"Файл {file_path} не найден. Убедитесь, что он скачан.")
 
     # Считаем количество строк в файле (без заголовка)
-    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-        total_lines = sum(1 for _ in f) - 1 
+    with open(file_path, newline='', encoding='utf-8') as f:
+        n_rows = sum(1 for _ in csv.reader(f)) - 1
 
     # Читаем CSV. on_bad_lines='skip' пропускает битые строки
     df = pd.read_csv(file_path, on_bad_lines='skip')
 
     # Проверяем, сколько строк потеряно
-    skipped = total_lines - df.shape[0]
+    skipped = n_rows - df.shape[0]
     if skipped > 0:
-        print(f"⚠️ Внимание: {skipped} строк(и) из {total_lines} были пропущены "
-              f"из-за ошибок формата (on_bad_lines='skip').")
-
+        warnings.warn(
+            f"{skipped} строк(и) из {n_rows} были пропущены "
+            f"из-за ошибок формата (on_bad_lines='skip').",
+            RuntimeWarning,
+        )
     return df
 
 
