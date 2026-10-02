@@ -26,3 +26,12 @@ dataset link: https://drive.google.com/file/d/1htOifYWaLTAOHthCCek9AB6hx82z01Qe/
 
 ### Ссылка на хранилище
 [Google Drive](https://drive.google.com/file/d/1htOifYWaLTAOHthCCek9AB6hx82z01Qe/view?usp=sharing)
+
+
+
+## Установка и запуск
+
+### 1. Клонирование репозитория
+```bash
+git clone https://github.com/Leyla-zak/ZakirovaL_data_enj.git
+cd ZakirovaL_data_enj

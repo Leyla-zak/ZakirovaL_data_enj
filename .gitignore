@@ -1,0 +1,31 @@
+# ===== ДАННЫЕ =====
+# Игнорируем все CSV-файлы (датасеты)
+*.csv
+
+# ===== ВИРТУАЛЬНОЕ ОКРУЖЕНИЕ =====
+venv/
+.venv/
+env/
+.env
+
+# ===== PYTHON =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+
+# ===== JUPYTER =====
+.ipynb_checkpoints/
+
+# ===== EXCEL =====
+*.xlsx
+~$*.xlsx
