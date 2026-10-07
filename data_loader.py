@@ -63,13 +63,24 @@ def cast_types(df: pd.DataFrame) -> pd.DataFrame:
 
     #Булевы столбцы
     bool_cols = ['on_special', 'in_stock']
+    bool_map = {
+        'True': True, 'False': False,
+        'true': True, 'false': False,
+        '1': True, '0': False,
+        1: True, 0: False,
+        True: True, False: False,
+    }
     for col in bool_cols:
         if col in df.columns:
-            df[col] = df[col].astype('boolean')
+            df[col] = df[col].map(bool_map).astype('boolean')
 
     #Даты
     if 'collected_date' in df.columns:
-        df['collected_date'] = pd.to_datetime(df['collected_date'], errors='coerce')
+        df['collected_date'] = pd.to_datetime(
+            df['collected_date'],
+            format='%Y-%m-%d',  # ISO-формат: год-месяц-день
+            errors='coerce'
+        )
 
     #Текстовые столбцы (остальные)
     text_cols = ['chain', 'name', 'brand', 'size', 'department',
@@ -117,4 +128,4 @@ if __name__ == '__main__':
     print("\nСохранение в parquet...")
     save_to_parquet(df)
 
-    print("\n Готово!")
+    print("\nГотово!")
