@@ -33,14 +33,88 @@ def load_dataset(file_path: str = 'au_supermarket_products.csv') -> pd.DataFrame
         )
     return df
 
+def cast_types(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Приводит типы данных датафрейма к правильным.
+
+    Args:
+        df (pd.DataFrame): Исходный датафрейм.
+
+    Returns:
+        pd.DataFrame: Датафрейм с правильными типами.
+    """
+    df = df.copy()
+
+    #Числовые столбцы (деньги, проценты, ID)
+    numeric_cols = ['price', 'was_price', 'save_percent', 'unit_price']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
+    #ID (целые числа)
+    int_cols = ['product_id', 'store_id']
+    for col in int_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+
+    #Штрих-код (важно: строка, чтобы не потерять ведущие нули!)
+    if 'barcode' in df.columns:
+        df['barcode'] = df['barcode'].astype('string')
+
+    #Булевы столбцы
+    bool_cols = ['on_special', 'in_stock']
+    for col in bool_cols:
+        if col in df.columns:
+            df[col] = df[col].astype('boolean')
+
+    #Даты
+    if 'collected_date' in df.columns:
+        df['collected_date'] = pd.to_datetime(df['collected_date'], errors='coerce')
+
+    #Текстовые столбцы (остальные)
+    text_cols = ['chain', 'name', 'brand', 'size', 'department',
+                 'unit_measure', 'special_type', 'offer_description',
+                 'product_url', 'image_url']
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype('string').str.strip()
+    return df
+
+
+def save_to_parquet(df: pd.DataFrame, output_path: str = 'au_supermarket_products.parquet') -> None:
+    """
+    Сохраняет датафрейм в формате .parquet.
+
+    Args:
+        df (pd.DataFrame): Датафрейм для сохранения.
+        output_path (str): Путь к выходному файлу.
+    """
+    df.to_parquet(output_path, index=False, engine='pyarrow')
+    print(f"Файл сохранён: {output_path}")
+
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.max_colwidth', 50)
 
+    # 1. Загружаем
+    print("Загрузка датасета...")
     df = load_dataset()
 
+    # 2. Приводим типы
+    print("\nПриведение типов...")
+    df = cast_types(df)
+
+    # 3. Выводим информацию
     print(f"\nДатасет загружен: {df.shape[0]} строк, {df.shape[1]} столбцов")
+    print("\nТипы данных после приведения:")
+    print(df.dtypes)
     print("\nПервые 10 строк:")
     print(df.head(10))
+
+    # 4. Сохраняем в parquet
+    print("\nСохранение в parquet...")
+    save_to_parquet(df)
+
+    print("\n Готово!")
