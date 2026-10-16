@@ -24,7 +24,10 @@ python scripts/read_api.py
 
 ##  Результат
 ### Метаданные (первые 10 строк)
-![10csv](image.png)
+![10csv](image-2.png)
+
+### Метаданные 30 строк
+![30csv](image.png)
 
 ### Скачанные фотографии
 ![dogs_img](image-1.png)
