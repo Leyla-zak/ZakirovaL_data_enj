@@ -2,6 +2,7 @@
 # Игнорируем все CSV-файлы (датасеты)
 *.csv
 *.parquet
+*.json 
 
 # ===== ВИРТУАЛЬНОЕ ОКРУЖЕНИЕ =====
 venv/
@@ -30,3 +31,12 @@ dist/
 # ===== EXCEL =====
 *.xlsx
 ~$*.xlsx
+
+
+# КАРТИНКИ
+images/
+*.jpg
+*.jpeg
+*.png
+
+!scripts/image_*.png
