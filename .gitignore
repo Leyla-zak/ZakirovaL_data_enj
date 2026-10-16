@@ -39,4 +39,4 @@ images/
 *.jpeg
 *.png
 
-!scripts/image_*.png
+!scripts/image*.png
