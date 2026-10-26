@@ -43,3 +43,11 @@ pip install -r requirements.txt
 ```bash
 python data_loader.py
 ```
+
+## EDA
+
+Разведочный анализ качества данных: [notebooks/EDA.ipynb](notebooks/EDA.ipynb)
+
+```bash
+jupyter notebook notebooks/EDA.ipynb
+```
