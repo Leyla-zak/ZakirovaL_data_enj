@@ -84,6 +84,8 @@ python scripts/write_to_db.py
 
 ```bash
 git status
+```
 
 Не должно быть: .env, .env.student, creds.db, *.parquet, *.csv.
+
 Должно быть: scripts/read_creds.py, scripts/write_to_db.py, requirements.txt, README.md, .gitignore.
