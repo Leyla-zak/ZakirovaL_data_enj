@@ -61,6 +61,7 @@ jupyter notebook notebooks/EDA.ipynb
 ### 2. Настройка `.env`
 Создайте файл `.env` в корне проекта:
 
+DB_NAME=...
 DB_HOST=...
 DB_PORT=...
 DB_USER=...
@@ -72,7 +73,7 @@ DB_PASSWORD=...
 ```bash
 pip install -r requirements.txt
 python scripts/write_to_db.py
-
+```
 ---
 
 ### Шаг 5: Уберите тестовый мусор
@@ -83,6 +84,7 @@ python scripts/write_to_db.py
 
 ```bash
 git status
+```
 
 Не должно быть: .env, .env.student, creds.db, *.parquet, *.csv.
 Должно быть: scripts/read_creds.py, scripts/write_to_db.py, requirements.txt, README.md, .gitignore.
