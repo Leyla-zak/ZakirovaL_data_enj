@@ -40,3 +40,8 @@ images/
 *.png
 
 !scripts/image*.png
+
+# СЕКРЕТЫ
+.env
+.env.student
+creds.db
