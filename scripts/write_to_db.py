@@ -1,42 +1,26 @@
 import os
+import sys
 import pandas as pd
 import psycopg2
 from psycopg2 import sql
+from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 
-load_dotenv()
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / '.env')
 
-TABLE_NAME = 'zakirovalr'  # ваша фамилия + инициалы
-PARQUET_PATH = 'au_supermarket_products.parquet'
+TABLE_NAME = 'zakirovalr'
+PARQUET_PATH = ROOT / 'au_supermarket_products.parquet'
 N_ROWS = 100
 
 
 def load_data(n_rows: int = N_ROWS) -> pd.DataFrame:
     """Загружает первые n строк датасета из parquet."""
-    if not os.path.exists(PARQUET_PATH):
-        raise FileNotFoundError(f"Файл {PARQUET_PATH} не найден. Сначала запустите data_loader.py.")
+    if not PARQUET_PATH.exists():
+        raise FileNotFoundError(f"Файл {PARQUET_PATH} не найден.")
     df = pd.read_parquet(PARQUET_PATH)
     return df.head(n_rows)
-
-
-def create_table(cursor, df: pd.DataFrame) -> None:
-    """Создаёт таблицу с колонками из датасета (все TEXT для простоты)."""
-    columns = ', '.join([f'"{col}" TEXT' for col in df.columns])
-    cursor.execute(sql.SQL('DROP TABLE IF EXISTS {};').format(sql.Identifier(TABLE_NAME)))
-    cursor.execute(sql.SQL('CREATE TABLE {} ({});').format(
-        sql.Identifier(TABLE_NAME),
-        sql.SQL(columns)
-    ))
-
-
-def insert_data(cursor, df: pd.DataFrame) -> None:
-    """Вставляет строки в таблицу."""
-    cols = ', '.join([f'"{col}"' for col in df.columns])
-    placeholders = ', '.join(['%s'] * len(df.columns))
-    query = f'INSERT INTO {TABLE_NAME} ({cols}) VALUES ({placeholders});'
-
-    for _, row in df.iterrows():
-        cursor.execute(query, tuple(row.fillna('').astype(str)))
 
 
 def main():
@@ -44,7 +28,7 @@ def main():
     df = load_data()
     print(f'Загружено: {len(df)} строк, {len(df.columns)} столбцов')
 
-    print(f'Подключение к {os.getenv("DB_NAME")} на {os.getenv("DB_HOST")}...')
+    print(f'Подключение к {os.getenv("DB_NAME")}...')
     conn = psycopg2.connect(
         host=os.getenv('DB_HOST'),
         port=os.getenv('DB_PORT'),
@@ -55,21 +39,42 @@ def main():
     cursor = conn.cursor()
 
     try:
-        print(f'Создание таблицы {TABLE_NAME}...')
-        create_table(cursor, df)
+        # 1. Удаляем таблицу, если есть
+        cursor.execute(sql.SQL('DROP TABLE IF EXISTS {};').format(
+            sql.Identifier(TABLE_NAME)
+        ))
+
+        # 2. Создаём таблицу с безопасными идентификаторами
+        columns_sql = sql.SQL(', ').join(
+            sql.SQL('{} TEXT').format(sql.Identifier(col)) for col in df.columns
+        )
+        cursor.execute(sql.SQL('CREATE TABLE {} ({});').format(
+            sql.Identifier(TABLE_NAME), columns_sql
+        ))
+
+        # 3. Вставляем данные батчем (быстро и безопасно)
+        cols_identifiers = sql.SQL(', ').join(sql.Identifier(col) for col in df.columns)
+        query = sql.SQL('INSERT INTO {} ({}) VALUES %s;').format(
+            sql.Identifier(TABLE_NAME), cols_identifiers
+        )
+
+        # Преобразуем DataFrame в список кортежей, заменяя NaN на None
+        rows = [tuple(row) for row in df.astype(object).where(pd.notnull(df), None).values]
+
+        execute_values(cursor, query, rows)
         conn.commit()
 
-        print(f'Вставка {len(df)} строк...')
-        insert_data(cursor, df)
-        conn.commit()
-
-        cursor.execute(f'SELECT COUNT(*) FROM {TABLE_NAME};')
+        # 4. Проверка
+        cursor.execute(sql.SQL('SELECT COUNT(*) FROM {};').format(
+            sql.Identifier(TABLE_NAME)
+        ))
         count = cursor.fetchone()[0]
-        print(f'Вставлено строк: {count}')
+        print(f'Успех! В таблице {TABLE_NAME} строк: {count}')
 
     except Exception as e:
         conn.rollback()
         print(f'Ошибка: {e}')
+        sys.exit(1)
     finally:
         cursor.close()
         conn.close()

@@ -1,32 +1,46 @@
 import sqlite3
-import os
+from pathlib import Path
 
-db_path = 'creds.db'
+DB_FILENAME = 'creds.db'
+USERNAME = 'deexpert'
 
-if not os.path.exists(db_path):
-    raise FileNotFoundError(f"Файл {db_path} не найден.")
+ROOT = Path(__file__).resolve().parent.parent
+DB_PATH = ROOT / DB_FILENAME
 
-conn = sqlite3.connect(db_path)
-conn.row_factory = sqlite3.Row
-cursor = conn.cursor()
 
-# Смотрим структуру таблицы
-cursor.execute("PRAGMA table_info(access);")
-print("Колонки в таблице access:")
-for col in cursor.fetchall():
-    print(f"  - {col['name']} ({col['type']})")
+def read_creds(db_path: Path = DB_PATH, username: str = USERNAME) -> dict | None:
+    """
+    Читает креды пользователя из SQLite базы.
 
-# Смотрим данные пользователя deexpert
-cursor.execute("SELECT * FROM access WHERE user = 'deexpert';")
-row = cursor.fetchone()
-if row:
-    print("\nДанные deexpert:")
-    for key in row.keys():
-        # Пароль не выводим полностью, только длину
-        val = row[key]
-        if 'pass' in key.lower():
-            val = f"*** (длина: {len(str(val))})"
-        print(f"  {key}: {val}")
+    Args:
+        db_path (Path): Путь к файлу creds.db.
+        username (str): Имя пользователя для поиска.
 
-cursor.close()
-conn.close()
+    Returns:
+        dict | None: Словарь с кредами или None, если не найдено.
+    """
+    if not db_path.exists():
+        raise FileNotFoundError(f"Файл {db_path} не найден.")
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM access WHERE user = ?;", (username,))
+    row = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return dict(row) if row else None
+
+
+if __name__ == '__main__':
+    creds = read_creds()
+    if creds:
+        print(f"User: {creds.get('user')}")
+        print(f"Host: {creds.get('url')}:{creds.get('port')}")
+        print(f"DB: {creds.get('db_name')}")
+        print(f"Password length: {len(creds.get('pass', ''))}")
+    else:
+        print(f"Пользователь {USERNAME} не найден.")
