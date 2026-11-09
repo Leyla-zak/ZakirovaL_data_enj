@@ -51,3 +51,41 @@ python data_loader.py
 ```bash
 jupyter notebook notebooks/EDA.ipynb
 ```
+
+## HW7: Запись в удалённую БД (Load в ETL)
+
+### 1. Получение кредов
+Креды читаются из файла `creds.db` (SQLite) скриптом `scripts/read_creds.py`.
+Для записи используется «тайный пользователь» (доступ к `homeworks`).
+
+### 2. Настройка `.env`
+Создайте файл `.env` в корне проекта:
+
+DB_NAME=...
+DB_HOST=...
+DB_PORT=...
+DB_USER=...
+DB_PASSWORD=...
+
+**Не коммитьте `.env`!** Он в `.gitignore`.
+
+### 3. Запуск
+```bash
+pip install -r requirements.txt
+python scripts/write_to_db.py
+```
+---
+
+### Шаг 5: Уберите тестовый мусор
+
+1.  **Удалите** `scripts/test_write_to_db.py` (если ещё не удалили).
+2.  **Удалите** `.env.student`.
+3.  Проверьте `git status`:
+
+```bash
+git status
+```
+
+Не должно быть: .env, .env.student, creds.db, *.parquet, *.csv.
+
+Должно быть: scripts/read_creds.py, scripts/write_to_db.py, requirements.txt, README.md, .gitignore.
