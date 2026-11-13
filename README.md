@@ -5,7 +5,7 @@ ITMO lessons hometasks
 ZakirovaL_data_enj/
 ├── src/
 │ └── etl/
-│ ├── init.py
+│ ├── __init.py
 │ ├── extract.py <- загрузка CSV/parquet
 │ ├── transform.py <- приведение типов
 │ ├── validate.py <- проверки качества
