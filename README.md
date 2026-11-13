@@ -1,5 +1,20 @@
-# ZakirovaL_data_enj
+# Анализ товаров и цен в австралийских супермаркетах
 ITMO lessons hometasks
+
+## Структура проекта
+ZakirovaL_data_enj/
+├── src/
+│ └── etl/
+│ ├── __init__.py
+│ ├── extract.py <- загрузка CSV/parquet
+│ ├── transform.py <- приведение типов
+│ ├── validate.py <- проверки качества
+│ ├── load.py <- запись в PostgreSQL
+│ └── main.py <- CLI
+├── scripts/
+├── notebooks/
+├── requirements.txt
+└── README.md
 
 ## Датасет
 
@@ -8,7 +23,7 @@ ITMO lessons hometasks
 Данные собраны 17 сентября 2026 года с помощью скраперов Apify.
 
 **Структура:**
-- `au_supermarket_products.csv` — 48 867 строк, информация о товарах: название, цена, скидка, штрих-код, категория.
+- `au_supermarket_products.csv` - 48 867 строк, информация о товарах: название, цена, скидка, штрих-код, категория.
 
 **Типы признаков:** числовые (цена, широта, долгота), категориальные (сеть, штат, пригород), текстовые (адрес).
 
@@ -20,7 +35,7 @@ ITMO lessons hometasks
 - **Автор:** FreshCrawl
 
 ### Размер скачиваемого файла
-- `au_supermarket_products.csv` — **15.3 МБ** (15 270 476 байт)
+- `au_supermarket_products.csv` - **15.3 МБ** (15 270 476 байт)
 
 ### Ссылка на хранилище
 [Google Drive](https://drive.google.com/file/d/1htOifYWaLTAOHthCCek9AB6hx82z01Qe/view?usp=sharing)
@@ -89,3 +104,23 @@ git status
 Не должно быть: .env, .env.student, creds.db, *.parquet, *.csv.
 
 Должно быть: scripts/read_creds.py, scripts/write_to_db.py, requirements.txt, README.md, .gitignore.
+
+## Пакет `etl`
+
+Самодостаточный ETL-пайплайн:
+1. **Extract** - загружает CSV/parquet.
+2. **Transform** - приводит типы.
+3. **Validate** - проверяет инварианты.
+4. **Load** - записывает до 100 строк в PostgreSQL через `pd.to_sql()`.
+
+### Запуск
+
+```bash
+pip install -r requirements.txt
+
+# Dry-run (без записи)
+python -m src.etl.main --dry-run
+
+# С записью
+python -m src.etl.main --source csv --rows 100 --table zakiroval
+```
