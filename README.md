@@ -1,6 +1,6 @@
 # Анализ товаров и цен в австралийских супермаркетах
 ITMO lessons hometasks
-
+```
 ## Структура проекта
 ZakirovaL_data_enj/
 ├── src/
@@ -15,7 +15,7 @@ ZakirovaL_data_enj/
 ├── notebooks/
 ├── requirements.txt
 └── README.md
-
+```
 ## Датасет
 
 ### Описание
